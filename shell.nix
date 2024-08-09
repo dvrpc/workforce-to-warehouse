@@ -6,5 +6,7 @@ in pkgs.mkShell {
     pkgs.python3Packages.pygtfs
     pkgs.python3Packages.python-dotenv
     pkgs.python3Packages.psycopg2
+    pkgs.python3Packages.python-lsp-server
+    pkgs.python3Packages.black
   ];
 }
