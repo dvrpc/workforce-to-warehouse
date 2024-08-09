@@ -21,14 +21,14 @@ Clone the repo, activate the nix-shell with `nix-shell`.
 #### Venv
 Clone the repo, activate the virtual environment. Activate however you typically do in your shell.
 
-| Platform | Shell      | Command to activate virtual environment |   |   |
-|----------|------------|-----------------------------------------|---|---|
-| POSIX    | bash/zsh   | $ source <venv>/bin/activate            |   |   |
-|          | fish       | $ source <venv>/bin/activate.fish       |   |   |
-|          | csh/tcsh   | $ source <venv>/bin/activate.csh        |   |   |
-|          | PowerShell | $ <venv>/bin/Activate.ps1               |   |   |
-| Windows  | cmd.exe    | C:\> <venv>\Scripts\activate.bat        |   |   |
-|          | PowerShell | PS C:\> <venv>\Scripts\Activate.ps1     |   |   |
+| Platform | Shell      | Command to activate virtual environment |
+|----------|------------|-----------------------------------------|
+| POSIX    | bash/zsh   | $ source <venv>/bin/activate            |
+|          | fish       | $ source <venv>/bin/activate.fish       |
+|          | csh/tcsh   | $ source <venv>/bin/activate.csh        |
+|          | PowerShell | $ <venv>/bin/Activate.ps1               |
+| Windows  | cmd.exe    | C:\> <venv>\Scripts\activate.bat        |
+|          | PowerShell | PS C:\> <venv>\Scripts\Activate.ps1     |
 
 ### Download and import GTFS feeds
 Download GTFS data from your transit agency. 
