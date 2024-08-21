@@ -27,7 +27,7 @@ create or replace view mystops as
 with 
 	mystops as (
 		select 
-			uuid_generate_v4() AS st_id,
+			a.feed_id,
 			a.stop_id, 
 			b.trip_id, 
 			b.arrival_time, 
@@ -41,6 +41,7 @@ with
 		inner join trips c
 		on b.trip_id=c.trip_id
 		where c.service_id='2' -- represents 7/14/2024 in njt gtfs
+		and a.feed_id=1
 		order by a.stop_id asc, b.arrival_time asc
 	),
 	myroutes as (
@@ -48,9 +49,13 @@ with
 		inner join stop_times b
 		on a.trip_id=b.trip_id
 		where b.stop_id='43422'
+		and b.feed_id=1
 		group by route_id
 	)
-select * from mystops a
+select uuid_generate_v4() AS st_id, a.stop_id, a.geom from mystops a
 inner join myroutes b
-on a.route_id=b.route_id_trips;
+on a.route_id=b.route_id_trips
+where a.arrival_time > '20:00:00'::time
+group by stop_id, geom
+order by stop_id asc;
 
