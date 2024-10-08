@@ -5,11 +5,11 @@ include .env
 load:;
 	gtfs2db append ./data/NJT/bus_data.zip $(DB_URI)
 	gtfs2db append ./data/NJT/rail_data.zip $(DB_URI)
-	gtfs2db append ./data/PATCO/rail_data.zip $(DB_URI)
+	gtfs2db append ./data/PATCO/PATCO.zip $(DB_URI)
 	gtfs2db append ./data/SEPTA/google_bus.zip $(DB_URI)
 	gtfs2db append ./data/SEPTA/google_rail.zip $(DB_URI)
 	gtfs2db append ./data/Shuttles/BurlingtonShuttles_bus_data.zip $(DB_URI)
-	gtfs2db append ./data/Shuttles/gmtma-nj-us.zip.zip $(DB_URI)
+	gtfs2db append ./data/Shuttles/gmtma-nj-us.zip $(DB_URI)
 
 clean:;
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "DROP SCHEMA public CASCADE;"	
