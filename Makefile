@@ -17,3 +17,6 @@ clean:;
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "GRANT ALL ON SCHEMA public TO postgres;"	
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "GRANT ALL ON SCHEMA public TO public"	
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "COMMENT ON SCHEMA public IS 'standard public schema';"	
+
+geom:;
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/geoms.sql
