@@ -1,6 +1,5 @@
 import unittest
 
-from pygtfs import overwrite_feed
 from pygtfs import Schedule
 
 from sqlalchemy.orm import Query

@@ -39,6 +39,20 @@ Use the shell command below to import the data. Repeat for other agencies or mod
 gtfs2db append /path/to/gtfs/bus_data.zip 'postgresql://user:pw!@host:port/db'
 ```
 
+If you're simply following along with the analysis DVRPC did, you can run `make load` to load the feeds in the /data folder. 
+
+Note that you'll need to populate a .env file at the root of your project. A template is here. Note you can leave the DB_URI variable as-is, it populates based on the others.
+
+```
+PG_USER=postgres
+PW=your_password
+HOST=localhost
+PORT=5555
+DB=warehouse
+DB_URI=postgresql://${PG_USER}@${HOST}:${PORT}/${DB}
+  
+```
+
 
 ## Project usage
 
