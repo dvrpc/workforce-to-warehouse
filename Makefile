@@ -14,9 +14,12 @@ load:;
 clean:;
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "DROP SCHEMA public CASCADE;"	
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "CREATE SCHEMA public;"	
-	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "GRANT ALL ON SCHEMA public TO postgres;"	
+	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "GRANT ALL ON SCHEMA public TO $(PG_USER);"	
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "GRANT ALL ON SCHEMA public TO public"	
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "COMMENT ON SCHEMA public IS 'standard public schema';"	
 
 geom:;
 	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/geoms.sql
+
+trips:;	
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/trips.sql
