@@ -14,6 +14,38 @@ inner join my_bbox b
 on st_within(a.geom, b.geom);
 
 
+drop table if exists test_stops;
+create table test_stops as
+select 
+    a.feed_id,
+    a.stop_id, 
+    b.trip_id,
+    b.arrival_time,
+    b.departure_time,
+    b.timepoint
+from origin_stops a
+inner join stop_times b
+    on a.stop_id=b.stop_id
+    and a.feed_id=b.feed_id
+where a.feed_id=b.feed_id
+and a.stop_id='30408';
+
+
+drop table if exists origin_trips;
+create table origin_trips as
+select 
+    a.*,
+    b.service_id, 
+    b.shape_id, 
+    c.geom
+from test_stops a
+inner join trips b
+on a.trip_id=b.trip_id
+inner join line_geoms c
+on b.shape_id=c.shape_id
+where a.feed_id=b.feed_id;
+
+
 
 
 -- drop table if exists origin_stop_times;
