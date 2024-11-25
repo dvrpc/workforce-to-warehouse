@@ -47,3 +47,15 @@ inner join line_geoms c
 where a.feed_id=b.feed_id;
 
 
+
+drop table if exists destination_stops;
+create table destination_stops as
+select a.stop_id, c.geom from stop_times a
+inner join origin_trips b
+    on a.trip_id=b.trip_id
+    and a.feed_id=b.feed_id
+inner join stops c
+    on a.stop_id = c.stop_id
+    and a.feed_id=c.feed_id;
+where a.feed_id=b.feed_id;
+and a.feed_id=c.feed_id;
