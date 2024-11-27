@@ -1,10 +1,12 @@
--- tldr: stop ids in njtransit are not unique, which is causing problems. they are for septa
+-- variables defined here. set a window of times you're interested in, and a day of the week, the script creates a table that has stops accessible from that bbox, at that time and day
 
+\set bbox -74.769773,40.215241,-74.751921,40.224028
+\set starttime '8:00:00'
+\set endtime '9:00:00'
 
 drop table if exists my_bbox;
 create table my_bbox as  
-select st_setsrid(st_makeenvelope(-74.769773,40.215241,-74.751921,40.224028),4326) as geom;
-
+select st_setsrid(st_makeenvelope(:bbox),4326) as geom;
 
 
 drop table if exists origin_stops;
@@ -14,8 +16,8 @@ inner join my_bbox b
 on st_within(a.geom, b.geom);
 
 
-drop table if exists test_stops;
-create table test_stops as
+drop table if exists origin_stop_times;
+create table origin_stop_times as
 select 
     a.feed_id,
     a.stop_id, 
@@ -37,25 +39,31 @@ select
     b.service_id, 
     b.shape_id, 
     c.geom
-from test_stops a
+from origin_stop_times a
 inner join trips b
     on a.trip_id=b.trip_id
     and a.feed_id=b.feed_id
 inner join line_geoms c
     on b.shape_id=c.shape_id
     and b.feed_id=c.feed_id
-where a.feed_id=b.feed_id;
-
+where a.feed_id=b.feed_id
+and a.arrival_time >= :'starttime'
+and a.arrival_time <= :'endtime';
 
 
 drop table if exists destination_stops;
 create table destination_stops as
-select a.stop_id, c.geom from stop_times a
+select 
+    a.stop_id, 
+    a.arrival_time,
+    c.geom from stop_times a
 inner join origin_trips b
     on a.trip_id=b.trip_id
     and a.feed_id=b.feed_id
 inner join stops c
     on a.stop_id = c.stop_id
-    and a.feed_id=c.feed_id;
-where a.feed_id=b.feed_id;
+    and a.feed_id=c.feed_id
+where a.feed_id=b.feed_id
 and a.feed_id=c.feed_id;
+
+
