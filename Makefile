@@ -23,3 +23,6 @@ geom:;
 
 trips:;	
 	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/trips.sql
+
+walksheds:;	
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/isochrones.sql
