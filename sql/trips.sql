@@ -1,24 +1,74 @@
-create or replace view mytrips as
-with mytrip as (
-    select 
-        b.feed_id, 
-        a.trip_id, 
-        c.date
-    from trips a
-    inner join stop_times b
-    on a.trip_id=b.trip_id
-    inner join calendar_dates c
-    on a.service_id=c.service_id
-    where b.stop_id='43422'
-    and b.arrival_time BETWEEN '8:00:00' and '10:00:00'
-    and c.date='2024-07-13'
-)
+-- variables defined here. set a window of times you're interested in, and a day of the week, the script creates a table that has stops accessible from that bbox, at that time and day
+-- bbox will grab all stops in that bbox
+
+\set bbox -74.769773,40.215241,-74.751921,40.224028
+\set starttime '8:00:00'
+\set endtime '9:00:00'
+
+drop table if exists my_bbox;
+create table my_bbox as  
+select st_setsrid(st_makeenvelope(:bbox),4326) as geom;
+
+
+drop table if exists origin_stops;
+create table origin_stops as
+select a.* from stops a
+inner join my_bbox b
+on st_within(a.geom, b.geom);
+
+
+drop table if exists origin_stop_times;
+create table origin_stop_times as
 select 
-    uuid_generate_v4() AS st_id, 
-    c.stop_id, 
-    c.geom 
-from mytrip a
+    a.feed_id,
+    a.stop_id, 
+    b.trip_id,
+    b.arrival_time,
+    b.departure_time,
+    b.timepoint
+from origin_stops a
 inner join stop_times b
-on a.trip_id=b.trip_id
+    on a.stop_id=b.stop_id
+    and a.feed_id=b.feed_id
+where a.feed_id=b.feed_id;
+
+
+drop table if exists origin_trips;
+create table origin_trips as
+select 
+    a.*,
+    b.service_id, 
+    b.shape_id, 
+    c.geom
+from origin_stop_times a
+inner join trips b
+    on a.trip_id=b.trip_id
+    and a.feed_id=b.feed_id
+inner join line_geoms c
+    on b.shape_id=c.shape_id
+    and b.feed_id=c.feed_id
+where a.feed_id=b.feed_id
+and a.arrival_time >= :'starttime'
+and a.arrival_time <= :'endtime';
+
+
+drop table if exists destination_stops;
+create table destination_stops as
+select 
+    a.stop_id, 
+    a.arrival_time,
+    c.geom,
+    (CAST(:'endtime' AS TIME) - a.arrival_time::TIME) AS time_remaining
+from stop_times a
+inner join origin_trips b
+    on a.trip_id=b.trip_id
+    and a.feed_id=b.feed_id
 inner join stops c
-on concat(b.stop_id,b.feed_id::varchar) = concat(c.stop_id, c.feed_id::varchar); -- avoid selecting stops with same id across agencies
+    on a.stop_id = c.stop_id
+    and a.feed_id=c.feed_id
+where a.feed_id=b.feed_id
+and a.feed_id=c.feed_id
+and a.arrival_time >= :'starttime'
+and a.arrival_time <= :'endtime';
+
+
