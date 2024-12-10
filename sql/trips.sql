@@ -1,4 +1,5 @@
 -- variables defined here. set a window of times you're interested in, and a day of the week, the script creates a table that has stops accessible from that bbox, at that time and day
+-- bbox will grab all stops in that bbox
 
 \set bbox -74.769773,40.215241,-74.751921,40.224028
 \set starttime '8:00:00'
@@ -56,7 +57,9 @@ create table destination_stops as
 select 
     a.stop_id, 
     a.arrival_time,
-    c.geom from stop_times a
+    c.geom,
+    (CAST(:'endtime' AS TIME) - a.arrival_time::TIME) AS time_remaining
+from stop_times a
 inner join origin_trips b
     on a.trip_id=b.trip_id
     and a.feed_id=b.feed_id
@@ -64,6 +67,8 @@ inner join stops c
     on a.stop_id = c.stop_id
     and a.feed_id=c.feed_id
 where a.feed_id=b.feed_id
-and a.feed_id=c.feed_id;
+and a.feed_id=c.feed_id
+and a.arrival_time >= :'starttime'
+and a.arrival_time <= :'endtime';
 
 
