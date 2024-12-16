@@ -3,6 +3,7 @@ in pkgs.mkShell {
   buildInputs = [
     pkgs.python3
     pkgs.python3Packages.pygtfs
+    pkgs.python3Packages.pip
     pkgs.python3Packages.python-dotenv
     pkgs.python3Packages.psycopg2
     pkgs.python3Packages.python-lsp-server
