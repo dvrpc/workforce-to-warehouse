@@ -30,6 +30,9 @@ Clone the repo, activate the virtual environment. Activate however you typically
 | Windows  | cmd.exe    | C:\> <venv>\Scripts\activate.bat        |
 |          | PowerShell | PS C:\> <venv>\Scripts\Activate.ps1     |
 
+Install the required packages with `pip install -r requirements.txt`
+
+
 ### Download and import GTFS feeds
 Download GTFS data from your transit agency. 
 
@@ -39,7 +42,7 @@ Use the shell command below to import the data. Repeat for other agencies or mod
 gtfs2db append /path/to/gtfs/bus_data.zip 'postgresql://user:pw!@host:port/db'
 ```
 
-If you're simply following along with the analysis DVRPC did, you can run `make load` to load the feeds in the /data folder. 
+If you're simply following along with the analysis DVRPC did, you can run `make load` to load the feeds in the /data folder. Note that this also loads the sidewalk network.
 
 Note that you'll need to populate a .env file at the root of your project. A template is here. Note you can leave the DB_URI variable as-is, it populates based on the others.
 
