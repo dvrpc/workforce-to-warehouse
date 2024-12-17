@@ -54,21 +54,30 @@ and a.arrival_time <= :'endtime';
 
 drop table if exists destination_stops;
 create table destination_stops as
+with ranked_stops as (
+    select 
+        a.stop_id, 
+        a.arrival_time,
+        c.geom,
+        (cast(:'endtime' as time) - a.arrival_time::time) as time_remaining,
+        row_number() over (partition by c.geom order by a.arrival_time desc) as rnk
+    from stop_times a
+    inner join origin_trips b
+        on a.trip_id = b.trip_id
+        and a.feed_id = b.feed_id
+    inner join stops c
+        on a.stop_id = c.stop_id
+        and a.feed_id = c.feed_id
+    where a.feed_id = b.feed_id
+      and a.feed_id = c.feed_id
+      and a.arrival_time >= :'starttime'
+      and a.arrival_time <= :'endtime'
+)
 select 
-    a.stop_id, 
-    a.arrival_time,
-    c.geom,
-    (CAST(:'endtime' AS TIME) - a.arrival_time::TIME) AS time_remaining
-from stop_times a
-inner join origin_trips b
-    on a.trip_id=b.trip_id
-    and a.feed_id=b.feed_id
-inner join stops c
-    on a.stop_id = c.stop_id
-    and a.feed_id=c.feed_id
-where a.feed_id=b.feed_id
-and a.feed_id=c.feed_id
-and a.arrival_time >= :'starttime'
-and a.arrival_time <= :'endtime';
-
+    stop_id, 
+    arrival_time, 
+    geom, 
+    time_remaining
+from ranked_stops
+where rnk = 1;
 
