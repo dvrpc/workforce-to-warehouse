@@ -11,17 +11,30 @@ load:;
 	gtfs2db append ./data/Shuttles/BurlingtonShuttles_bus_data.zip $(DB_URI)
 	gtfs2db append ./data/Shuttles/gmtma-nj-us.zip $(DB_URI)
 
+sidewalk:;
 	# the geojson endpoint will need to be updated after the azure migration, which is sometime in jan 2025
-	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" "https://opendata.arcgis.com/datasets/40186cee01824f11a407766e0cf32940_0.geojson" -nln ped_network
+	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" "https://opendata.arcgis.com/datasets/40186cee01824f11a407766e0cf32940_0.geojson" -nln ped_network -a_srs EPSG:4326 -t_srs EPSG:26918
 
 geom:;
 	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/geoms.sql
 
 trips:;	
-	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/trips.sql
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v starttime='7:00:00' -v endtime='8:00:00' -v shift=a -f sql/trips.sql
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v starttime='15:00:00' -v endtime='16:00:00' -v shift=b -f sql/trips.sql
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v starttime='23:00:00' -v endtime='23:59:59' -v shift=c -f sql/trips.sql
 
 walksheds:;	
-	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/isochrones.sql
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v shift=a -f sql/isochrones.sql
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v shift=b -f sql/isochrones.sql
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v shift=c  -f sql/isochrones.sql
+
+all:;
+	make clean
+	make load
+	make sidewalk
+	make geom
+	make trips
+	make walksheds
 
 # Delete all 
 clean:;
