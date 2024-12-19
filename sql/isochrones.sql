@@ -3,6 +3,7 @@ create table isochrones_:shift as
 with walk_time as (
     select 
         a.stop_id, 
+        a.feed_id,
         b.id as node_id, 
         extract(epoch FROM a.time_remaining) / 60 as time_remaining_minutes
     from 
@@ -17,6 +18,7 @@ with walk_time as (
 )
 select 
     dt.stop_id,
+    dt.feed_id,
     ped_network.wkb_geometry AS isochrone_geom
 from 
     walk_time dt,
@@ -35,8 +37,8 @@ on
 drop table if exists isoshell_:shift;
 create table isoshell_:shift as 
 with hull as (
-  select stop_id, st_concavehull(st_collect(isochrone_geom),0.1) as geom
+  select stop_id, feed_id, st_concavehull(st_collect(isochrone_geom),0.1) as geom
   from isochrones_:shift 
-  group by stop_id
+  group by stop_id, feed_id
 ) 
 select row_number() over() as gid, st_collectionextract(st_union(geom)) as geom from hull 
