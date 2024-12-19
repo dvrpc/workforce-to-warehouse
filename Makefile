@@ -11,6 +11,9 @@ load:;
 	gtfs2db append ./data/Shuttles/BurlingtonShuttles_bus_data.zip $(DB_URI)
 	gtfs2db append ./data/Shuttles/gmtma-nj-us.zip $(DB_URI)
 
+	# costar data
+	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" $(UDRIVE_INPUT_GPKG) -nln costar_freight_2024
+
 sidewalk:;
 	# the geojson endpoint will need to be updated after the azure migration, which is sometime in jan 2025
 	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" "https://opendata.arcgis.com/datasets/40186cee01824f11a407766e0cf32940_0.geojson" -nln ped_network -a_srs EPSG:4326 -t_srs EPSG:26918
@@ -36,6 +39,17 @@ all:;
 	make trips
 	make walksheds
 
+udrive:;
+	ogr2ogr -f GPKG $(UDRIVE_OUTPUT_GPKG) \
+		PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" \
+		-sql "select * from isoshell_a" isoshell_a 
+	ogr2ogr -f GPKG -append $(UDRIVE_OUTPUT_GPKG) \
+		PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" \
+		-sql "select * from isoshell_c" isoshell_b 
+	ogr2ogr -f GPKG -append $(UDRIVE_OUTPUT_GPKG) \
+		PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" \
+		-sql "select * from isoshell_c" isoshell_c 
+	
 # Delete all 
 clean:;
 	 psql -U $(PG_USER) -p $(PORT) -d $(DB) -c "DROP SCHEMA public CASCADE;"	

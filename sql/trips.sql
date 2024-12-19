@@ -55,6 +55,7 @@ create table destination_stops_:shift as
 with ranked_stops as (
     select 
         a.stop_id, 
+        a.feed_id,
         a.arrival_time,
         c.geom,
         (cast(:'endtime' as time) - a.arrival_time::time) as time_remaining,
@@ -73,6 +74,7 @@ with ranked_stops as (
 )
 select 
     stop_id, 
+    feed_id,
     arrival_time, 
     geom, 
     time_remaining
