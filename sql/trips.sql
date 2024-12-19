@@ -2,8 +2,6 @@
 -- bbox will grab all stops in that bbox
 
 \set bbox -74.769773,40.215241,-74.751921,40.224028
-\set starttime '8:00:00'
-\set endtime '9:00:00'
 
 drop table if exists my_bbox;
 create table my_bbox as  
@@ -52,8 +50,8 @@ and a.arrival_time >= :'starttime'
 and a.arrival_time <= :'endtime';
 
 
-drop table if exists destination_stops;
-create table destination_stops as
+drop table if exists destination_stops_:shift;
+create table destination_stops_:shift as
 with ranked_stops as (
     select 
         a.stop_id, 
