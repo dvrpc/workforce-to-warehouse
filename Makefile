@@ -12,6 +12,7 @@ load:;
 	gtfs2db append ./data/Shuttles/gmtma-nj-us.zip $(DB_URI)
 
 	# costar data
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/extensions.sql
 	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" $(UDRIVE_INPUT_GPKG) -nln costar_freight_2024
 
 sidewalk:;
