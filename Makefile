@@ -13,8 +13,7 @@ load:;
 
 	# costar data
 	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/extensions.sql
-	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" $(UDRIVE_INPUT_GPKG) -nln costar_freight_2024
-
+	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" $(UDRIVE_INPUT_GPKG) -nln costar_freight_2024 -a_srs EPSG:4326 -t_srs EPSG:26918
 sidewalk:;
 	# the geojson endpoint will need to be updated after the azure migration, which is sometime in jan 2025
 	ogr2ogr -f "PostgreSQL" PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" "https://opendata.arcgis.com/datasets/40186cee01824f11a407766e0cf32940_0.geojson" -nln ped_network -a_srs EPSG:4326 -t_srs EPSG:26918
