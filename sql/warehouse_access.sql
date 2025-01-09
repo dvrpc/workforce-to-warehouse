@@ -12,9 +12,6 @@
 
 
 
-
-
-
 ------------------------------------------------------
 --- new column to classify, based on the numbers above
 ------------------------------------------------------
@@ -23,12 +20,41 @@ add column if not exists warehouse_access smallint;
 
 
 
+------------------------------------------------------
+--- this sets warehouses that are accessible in all three,
+--- ie are accessible via transit and walking. category #1
+------------------------------------------------------
+update costar_freight_2024 
+set warehouse_access=1 
+from isoshell_a a, isoshell_b b, isoshell_c c
+where st_contains(a.geom, costar_freight_2024.geom)
+and st_contains(b.geom, costar_freight_2024.geom)
+and st_contains(c.geom, costar_freight_2024.geom);
 
 
 ------------------------------------------------------
---- create a union of all three isochrones
+--- this sets #2, places where warehouse is in at 
+--- least one isochrone, but is not in all three
 ------------------------------------------------------
-drop table iso_all;
+update costar_freight_2024 
+set warehouse_access=2
+from isoshell_a a, isoshell_b b, isoshell_c c
+where 
+  (st_contains(a.geom, costar_freight_2024.geom)
+  or st_contains(b.geom, costar_freight_2024.geom)
+  or st_contains(c.geom, costar_freight_2024.geom))
+and not (
+  st_contains(a.geom, costar_freight_2024.geom)
+  and st_contains(b.geom, costar_freight_2024.geom)
+  and st_contains(c.geom, costar_freight_2024.geom)
+);
+
+
+------------------------------------------------------
+--- create a union of all three isochrones for use 
+--- creating sidewalk buffers below
+------------------------------------------------------
+drop table if exists iso_all;
 create table if not exists iso_all as
 select ST_Union(geom) as geom
 from (
@@ -45,9 +71,12 @@ from (
 --- buffer the iso_all table, st_difference 
 --- the buffer with the iso all table to avoid overlapping
 --- buffers that grab things inside iso_all. buffer is one mile
+--- this represents places where <1 mile of sw could be built
+--- to make the warehouse accessible.
+--- potential imporvement- do on network rather than as crow flies
 ------------------------------------------------------
 
-drop table iso_buffer;
+drop table if exists iso_buffer;
 create table if not exists iso_buffer as
 with exterior_rings as (
     select ST_ExteriorRing((ST_Dump(geom)).geom) as ering
@@ -66,4 +95,16 @@ from buffered_rings, iso_all;
 update costar_freight_2024 
 set warehouse_access=3 
 from iso_buffer b
-where st_within(costar_freight_2024.geom, b.geom)
+where st_within(costar_freight_2024.geom, b.geom);
+
+
+
+------------------------------------------------------
+--- Set all others to shuttle. Not technically true,
+--- as you'll see all of philly as potential shuttle,
+--- but this is only bc philly is outside of the 60 minute window
+------------------------------------------------------
+update costar_freight_2024 
+set warehouse_access=4
+where warehouse_access is null
+or warehouse_access not in (1,2,3);
