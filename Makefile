@@ -49,13 +49,16 @@ all:;
 udrive:;
 	ogr2ogr -f GPKG $(UDRIVE_OUTPUT_GPKG) \
 		PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" \
-		-sql "select * from isoshell_a" isoshell_a 
+		-sql "select * from isoshell_a" -nln isoshell_a 
 	ogr2ogr -f GPKG -append $(UDRIVE_OUTPUT_GPKG) \
 		PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" \
-		-sql "select * from isoshell_c" isoshell_b 
+		-sql "select * from isoshell_c" -nln isoshell_b 
 	ogr2ogr -f GPKG -append $(UDRIVE_OUTPUT_GPKG) \
 		PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" \
-		-sql "select * from isoshell_c" isoshell_c 
+		-sql "select * from isoshell_c" -nln isoshell_c 
+	ogr2ogr -f GPKG -append $(UDRIVE_OUTPUT_GPKG) \
+		PG:"host=localhost user=$(PG_USER) dbname=$(DB) port=$(PORT)" \
+		-sql "select * from costar_freight_2024" -nln costar_with_access_type
 	
 # Delete all 
 clean:;
