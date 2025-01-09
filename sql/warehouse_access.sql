@@ -12,6 +12,19 @@
 
 
 
+
+
+
+------------------------------------------------------
+--- new column to classify, based on the numbers above
+------------------------------------------------------
+alter table costar_freight_2024
+add column if not exists warehouse_access smallint;
+
+
+
+
+
 ------------------------------------------------------
 --- create a union of all three isochrones
 ------------------------------------------------------
@@ -48,10 +61,6 @@ select st_difference(ST_Union(buffered_geom), st_collect(iso_all.geom)) as geom
 from buffered_rings, iso_all;
 
 
-alter table costar_freight_2024
-add column if not exists warehouse_access smallint;
-
-select st_srid(geom) from iso_buffer cf 
 
 
 update costar_freight_2024 

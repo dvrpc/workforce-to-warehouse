@@ -31,6 +31,9 @@ walksheds:;
 	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v shift=b -f sql/isochrones.sql
 	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -v shift=c  -f sql/isochrones.sql
 
+access:;
+	psql -U $(PG_USER) -p $(PORT) -d $(DB) -v schema=public -f sql/warehouse_access.sql
+
 all:;
 	make clean
 	make load
@@ -38,6 +41,7 @@ all:;
 	make geom
 	make trips
 	make walksheds
+	make access
 
 udrive:;
 	ogr2ogr -f GPKG $(UDRIVE_OUTPUT_GPKG) \
