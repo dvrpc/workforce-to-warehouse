@@ -20,7 +20,7 @@ Other dependencies:
 - gdal/ogr2ogr
 
 It's also worth noting that some of the input and output scripts utilize the U: drive behind DVRPC's firewall. 
-If you're replicating on another machine, you'll need to update the .env file and point to your own warehouse data and your own path for outputs.
+If you're replicating on another machine (not behind DVRPC firewall), you'll need to update the .env file and point to your own warehouse data and your own path for outputs.
 
 ## Installation/Setup
 
