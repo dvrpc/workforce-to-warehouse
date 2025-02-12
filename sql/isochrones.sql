@@ -5,7 +5,7 @@ with walk_time as (
         a.stop_id, 
         a.feed_id,
         b.id as node_id, 
-        extract(epoch FROM a.time_remaining) / 60 as time_remaining_minutes
+        extract(epoch FROM a.time_remaining) / 40 as time_remaining_minutes -- set as 40 minutes
     from 
         destination_stops_:shift a
     join 
