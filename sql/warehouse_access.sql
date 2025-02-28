@@ -16,10 +16,10 @@
 --- new column to classify, based on the numbers above
 ------------------------------------------------------
 alter table costar_freight_2024
-add column if not exists warehouse_access smallint;
-
-
-
+add column if not exists warehouse_access smallint,
+ADD COLUMN if not exists iso_a boolean DEFAULT false,
+ADD COLUMN if not exists iso_b boolean DEFAULT false,
+ADD COLUMN if not exists iso_c boolean DEFAULT false;
 ------------------------------------------------------
 --- this sets warehouses that are accessible in all three,
 --- ie are accessible via transit and walking. category #1
@@ -27,9 +27,9 @@ add column if not exists warehouse_access smallint;
 update costar_freight_2024 
 set warehouse_access=1 
 from isoshell_a a, isoshell_b b, isoshell_c c
-where st_contains(a.geom, costar_freight_2024.geom)
-and st_contains(b.geom, costar_freight_2024.geom)
-and st_contains(c.geom, costar_freight_2024.geom);
+where st_intersects(a.geom, costar_freight_2024.geom)
+and st_intersects(b.geom, costar_freight_2024.geom)
+and st_intersects(c.geom, costar_freight_2024.geom);
 
 
 ------------------------------------------------------
@@ -40,13 +40,13 @@ update costar_freight_2024
 set warehouse_access=2
 from isoshell_a a, isoshell_b b, isoshell_c c
 where 
-  (st_contains(a.geom, costar_freight_2024.geom)
-  or st_contains(b.geom, costar_freight_2024.geom)
-  or st_contains(c.geom, costar_freight_2024.geom))
+  (st_intersects(a.geom, costar_freight_2024.geom)
+  or st_intersects(b.geom, costar_freight_2024.geom)
+  or st_intersects(c.geom, costar_freight_2024.geom))
 and not (
-  st_contains(a.geom, costar_freight_2024.geom)
-  and st_contains(b.geom, costar_freight_2024.geom)
-  and st_contains(c.geom, costar_freight_2024.geom)
+  st_intersects(a.geom, costar_freight_2024.geom)
+  and st_intersects(b.geom, costar_freight_2024.geom)
+  and st_intersects(c.geom, costar_freight_2024.geom)
 );
 
 
@@ -90,14 +90,10 @@ select st_difference(ST_Union(buffered_geom), st_collect(iso_all.geom)) as geom
 from buffered_rings, iso_all;
 
 
-
-
 update costar_freight_2024 
 set warehouse_access=3 
 from iso_buffer b
 where st_within(costar_freight_2024.geom, b.geom);
-
-
 
 ------------------------------------------------------
 --- Set all others to shuttle. Not technically true,
@@ -108,3 +104,25 @@ update costar_freight_2024
 set warehouse_access=4
 where warehouse_access is null
 or warehouse_access not in (1,2,3);
+
+-- adds info to which iso the warehouse intersects
+UPDATE costar_freight_2024 c
+SET iso_a = EXISTS (
+    SELECT 1 
+    FROM isoshell_a a
+    WHERE ST_Intersects(c.geom, a.geom)
+);
+
+UPDATE costar_freight_2024 c
+SET iso_b = EXISTS (
+    SELECT 1 
+    FROM isoshell_b b
+    WHERE ST_Intersects(c.geom, b.geom)
+);
+
+UPDATE costar_freight_2024 co
+SET iso_c = EXISTS (
+    SELECT 1 
+    FROM isoshell_c c
+    WHERE ST_Intersects(co.geom, c.geom)
+);
