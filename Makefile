@@ -22,7 +22,7 @@ costar:;
 	ogr2ogr -f "PostgreSQL" $(PG_CONN) $(UDRIVE_INPUT_GPKG) -nln costar_freight_2024 -a_srs EPSG:4326 -t_srs EPSG:26918
 
 census:
-	ogr2ogr -f "PostgreSQL" $(PG_CONN) "https://opendata.arcgis.com/datasets/7d313c10a6da403c8988132aa63fd140_0.geojson" -nln blockgroups -a_srs EPSG:4326 -t_srs EPSG:26918 -where "(STATEFP='10' AND COUNTYFP='001') OR (STATEFP='10' AND COUNTYFP='003') OR (STATEFP='24' AND COUNTYFP='015') OR (STATEFP='24' AND COUNTYFP='025') OR (STATEFP='34' AND COUNTYFP IN ('001','005','007','009','011','015','019','021','023','025','029','033','035','041')) OR (STATEFP='42' AND COUNTYFP IN ('011','017','029','045','071','077','091','095','101','133'))"
+	ogr2ogr -f "PostgreSQL" $(PG_CONN) "https://opendata.arcgis.com/datasets/921861d9bc64466ab3cbab6d434b1272_0.geojson" -nln blockgroups -a_srs EPSG:4326 -t_srs EPSG:26918 -where dvrpc_reg='y'
 	python -c "from census.lodes import load_lodes_data; load_lodes_data('$(DB_URI)')"
 
 sidewalk:
