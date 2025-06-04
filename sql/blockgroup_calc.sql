@@ -10,7 +10,7 @@ WITH
       bg.wkb_geometry AS geom
     FROM
       blockgroups bg
-      JOIN costar_freight_2024 cs ON st_intersects (bg.wkb_geometry, cs.geom)
+      JOIN costar_freight_2024 cs ON st_intersects (bg.wkb_geometry, st_transform(cs.geom,26918))
     GROUP BY
       bg.geoid,
       bg.wkb_geometry

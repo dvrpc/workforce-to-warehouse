@@ -27,9 +27,9 @@ ADD COLUMN if not exists iso_c boolean DEFAULT false;
 update costar_freight_2024 
 set warehouse_access=1 
 from isoshell_a a, isoshell_b b, isoshell_c c
-where st_intersects(a.geom, costar_freight_2024.geom)
-and st_intersects(b.geom, costar_freight_2024.geom)
-and st_intersects(c.geom, costar_freight_2024.geom);
+where st_intersects(a.geom, st_transform(costar_freight_2024.geom,26918))
+and st_intersects(b.geom, st_transform(costar_freight_2024.geom,26918))
+and st_intersects(c.geom, st_transform(costar_freight_2024.geom,26918));
 
 
 ------------------------------------------------------
@@ -40,13 +40,13 @@ update costar_freight_2024
 set warehouse_access=2
 from isoshell_a a, isoshell_b b, isoshell_c c
 where 
-  (st_intersects(a.geom, costar_freight_2024.geom)
-  or st_intersects(b.geom, costar_freight_2024.geom)
-  or st_intersects(c.geom, costar_freight_2024.geom))
+  (st_intersects(a.geom, st_transform(costar_freight_2024.geom,26918))
+  or st_intersects(b.geom, st_transform(costar_freight_2024.geom,26918))
+  or st_intersects(c.geom, st_transform(costar_freight_2024.geom,26918)))
 and not (
-  st_intersects(a.geom, costar_freight_2024.geom)
-  and st_intersects(b.geom, costar_freight_2024.geom)
-  and st_intersects(c.geom, costar_freight_2024.geom)
+  st_intersects(a.geom, st_transform(costar_freight_2024.geom,26918))
+  and st_intersects(b.geom, st_transform(costar_freight_2024.geom,26918))
+  and st_intersects(c.geom, st_transform(costar_freight_2024.geom,26918))
 );
 
 
@@ -93,7 +93,7 @@ from buffered_rings, iso_all;
 update costar_freight_2024 
 set warehouse_access=3 
 from iso_buffer b
-where st_within(costar_freight_2024.geom, b.geom);
+where st_within(st_transform(costar_freight_2024.geom,26918), b.geom);
 
 ------------------------------------------------------
 --- Set all others to shuttle. Not technically true,
@@ -110,19 +110,19 @@ UPDATE costar_freight_2024 c
 SET iso_a = EXISTS (
     SELECT 1 
     FROM isoshell_a a
-    WHERE ST_Intersects(c.geom, a.geom)
+    WHERE ST_Intersects(st_transform(c.geom,26918), a.geom)
 );
 
 UPDATE costar_freight_2024 c
 SET iso_b = EXISTS (
     SELECT 1 
     FROM isoshell_b b
-    WHERE ST_Intersects(c.geom, b.geom)
+    WHERE ST_Intersects(st_transform(c.geom,26918), b.geom)
 );
 
 UPDATE costar_freight_2024 co
 SET iso_c = EXISTS (
     SELECT 1 
     FROM isoshell_c c
-    WHERE ST_Intersects(co.geom, c.geom)
+    WHERE ST_Intersects(st_transform(c.geom,26918), c.geom)
 );
