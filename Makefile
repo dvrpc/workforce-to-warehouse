@@ -17,16 +17,16 @@ gtfs:
 	gtfs2db append ./data/Shuttles/BurlingtonShuttles_bus_data.zip $(DB_URI)
 	gtfs2db append ./data/Shuttles/gmtma-nj-us.zip $(DB_URI)
 
-costar:;
+costar:
 	psql $(PSQL_CONN) -v schema=public -f sql/extensions.sql
-	ogr2ogr -f "PostgreSQL" $(PG_CONN) $(UDRIVE_INPUT_GPKG) -nln costar_freight_2024 -a_srs EPSG:4326 -t_srs EPSG:26918
+	ogr2ogr -f "PostgreSQL" $(PG_CONN) $(UDRIVE_INPUT_GPKG) -nln costar_freight_2024
 
 census:
-	ogr2ogr -f "PostgreSQL" $(PG_CONN) "https://opendata.arcgis.com/datasets/921861d9bc64466ab3cbab6d434b1272_0.geojson" -nln blockgroups -a_srs EPSG:4326 -t_srs EPSG:26918 -where dvrpc_reg='y'
+	ogr2ogr -f "PostgreSQL" $(PG_CONN) "https://opendata.arcgis.com/datasets/7d313c10a6da403c8988132aa63fd140_0.geojson" -nln blockgroups -t_srs EPSG:26918 -where "dvrpc_reg='y'"
 	python -c "from census.lodes import load_lodes_data; load_lodes_data('$(DB_URI)')"
 
 sidewalk:
-	ogr2ogr -f "PostgreSQL" $(PG_CONN) "https://opendata.arcgis.com/datasets/5959ca82848f4833a65cd90ef991c080_0.geojson" -nln ped_network -a_srs EPSG:4326 -t_srs EPSG:26918
+	ogr2ogr -f "PostgreSQL" $(PG_CONN) "https://opendata.arcgis.com/datasets/5959ca82848f4833a65cd90ef991c080_0.geojson" -nln ped_network -t_srs EPSG:26918
 
 geom:
 	psql $(PSQL_CONN) -v schema=public -f sql/geoms.sql

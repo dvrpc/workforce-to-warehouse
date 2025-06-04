@@ -3,17 +3,56 @@
 
 \set bbox -74.769773,40.215241,-74.751921,40.224028
 
+-- bbox of area
 drop table if exists my_bbox;
 create table my_bbox as  
 select st_setsrid(st_makeenvelope(:bbox),4326) as geom;
 
+-- sunday Service only table
+drop table if exists sunday_services;
+create table sunday_services as
+with calendar_sunday as (
+    -- sunday service from calendar table
+    select service_id, feed_id
+    from calendar 
+    where sunday = true
+),
+exceptions_sunday as (
+    -- sunday exceptions from calendar_dates
+    select service_id, feed_id, exception_type
+    from calendar_dates 
+    where EXTRACT(dow FROM date) = 0  -- Sunday = 0
+),
+all_sunday_services as (
+    -- combine Sunday services
+    select service_id, feed_id, 'regular' as service_type
+    from calendar_sunday
+    
+    union
+    
+    -- add Sunday additions (exception_type = 1)
+    select service_id, feed_id, 'addition' as service_type
+    from exceptions_sunday
+    where exception_type = 1
+),
+filtered_services as (
+    -- remove any services that have Sunday removals (exception_type = 2)
+    select a.service_id, a.feed_id
+    from all_sunday_services a
+    left join exceptions_sunday b
+        on a.service_id = b.service_id 
+        and a.feed_id = b.feed_id
+        and b.exception_type = 2
+    where b.service_id is null  -- no removal exceptions
+)
+select distinct service_id, feed_id
+from filtered_services;
 
 drop table if exists origin_stops;
 create table origin_stops as
 select a.* from stops a
 inner join my_bbox b
 on st_within(a.geom, b.geom);
-
 
 drop table if exists origin_stop_times;
 create table origin_stop_times as
@@ -45,6 +84,9 @@ inner join trips b
 inner join line_geoms c
     on b.shape_id=c.shape_id
     and b.feed_id=c.feed_id
+inner join sunday_services d -- only sunday service
+    on b.service_id = d.service_id
+    and b.feed_id = d.feed_id
 where a.feed_id=b.feed_id
 and a.arrival_time >= :'starttime'
 and a.arrival_time <= :'endtime';
