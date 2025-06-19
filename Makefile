@@ -32,9 +32,9 @@ geom:
 	psql $(PSQL_CONN) -v schema=public -f sql/geoms.sql
 
 trips:
-	psql $(PSQL_CONN) -v schema=public -v starttime='6:15:00' -v endtime='7:00:00' -v shift=a -f sql/trips.sql
-	psql $(PSQL_CONN) -v schema=public -v starttime='14:15:00' -v endtime='15:00:00' -v shift=b -f sql/trips.sql
-	psql $(PSQL_CONN) -v schema=public -v starttime='22:15:00' -v endtime='23:00:00' -v shift=c -f sql/trips.sql
+	psql $(PSQL_CONN) -v schema=public -v day='wednesday' -v starttime='6:15:00' -v endtime='7:00:00' -v shift=a -f sql/trips.sql
+	psql $(PSQL_CONN) -v schema=public -v day='wednesday' -v starttime='14:15:00' -v endtime='15:00:00' -v shift=b -f sql/trips.sql
+	psql $(PSQL_CONN) -v schema=public -v day='wednesday' -v starttime='22:15:00' -v endtime='23:00:00' -v shift=c -f sql/trips.sql
 
 walksheds:
 	psql $(PSQL_CONN) -v schema=public -v shift=a -f sql/isochrones.sql
