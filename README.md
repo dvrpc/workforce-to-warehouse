@@ -4,7 +4,7 @@
 This repo holds work for FY25 for Mercer County. The goal of the project is to find ways to connect workforce to warehouses. 
 This repo represents the technical analysis portion of the project, which includes importing GTFS data and building isochrones on the transit and pedestrian network.
 
-The idea is to start with a bounding box, a start time, and and end time, and build isochrones that use GTFS data plus sidewalk walksheds to create isochrones.
+The idea is to start with a bounding box, a start time, an end time, a specific service day (Wednesday), and build isochrones that use GTFS data plus sidewalk walksheds to create isochrones.
 
 The isochrones are used to classify warehouses on their accessibility or lack thereof.
 
