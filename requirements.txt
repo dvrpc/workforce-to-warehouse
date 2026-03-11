@@ -3,3 +3,5 @@ click
 psycopg2
 pygtfs
 python-dotenv
+requests
+pandas
